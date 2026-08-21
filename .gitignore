@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database (Keep local databases out of version control)
+*.sqlite3
+db.sqlite3
+
+# Local environment variables and secrets
+.env
+.env.+
+*.env
+local_settings.py
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+
+# Django-specific media and collected static files
+media/
+staticfiles/
+static_root/
+
+# Logs and databases
+*.log
+*.pot
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+
+notes.md

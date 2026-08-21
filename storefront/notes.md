@@ -1,1 +1,0 @@
-django-admin startproject project_name .
