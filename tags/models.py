@@ -20,10 +20,20 @@ NB: this solution fails if the parent object uses a customId or field as a prima
 class Tag(models.Model):
     label = models.CharField(max_length=255)
 
-
+# class TagItemManager(models.Manager):
+#     def get_tags_for(self, object_type, object_id):
+#         content_type = ContentType.objects.get_for_model(object_type)
+#         tag_query = TagItem.objects.select_related("tag").filter(content_type=content_type, object_id=object_id)
+#         return tag_query
+    
 class TagItem(models.Model):
     # what tag is applied to what object
+    # objects = TagItemManager()
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveSmallIntegerField()
     content_object = GenericForeignKey() # this extra field is used to get the actual object this relationship is applied to
+
+
+
+

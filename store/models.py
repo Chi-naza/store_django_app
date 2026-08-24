@@ -42,6 +42,10 @@ class Customer(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     birth_date = models.DateField(null=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=["last_name", "first_name"])
+        ]
 
 
 
@@ -132,6 +136,12 @@ class Customer(models.Model):
 
 
 
+    
+
+UNDOING A MIGRATIONS:
+Run the command: python3 manage.py migrate store 0003
+
+Where 0003 is the migrations number and the "store" is the name of the app
 """
 
 
