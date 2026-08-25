@@ -42,7 +42,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=BRONZE)
-    collection = models.ForeignKey(Collection, on_delete=models.PROTECT) # With PROTECT, deleting a collection doesn't delete all the products in it
+    collection = models.ForeignKey(Collection, on_delete=models.PROTECT, related_name="products") # With PROTECT, deleting a collection doesn't delete all the products in it
     promotions = models.ManyToManyField(Promotion, related_name="products", blank=True) # So one product can have multiple promotions vice versa; the related name overrides the default text Django will use to store products (product_set) in the Promotion Table. 
 
     def __str__(self):
@@ -89,7 +89,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="orderitems")
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
 
