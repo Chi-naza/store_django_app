@@ -20,6 +20,9 @@ NB: this solution fails if the parent object uses a customId or field as a prima
 class Tag(models.Model):
     label = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.label
+
 # class TagItemManager(models.Manager):
 #     def get_tags_for(self, object_type, object_id):
 #         content_type = ContentType.objects.get_for_model(object_type)
@@ -33,6 +36,9 @@ class TagItem(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveSmallIntegerField()
     content_object = GenericForeignKey() # this extra field is used to get the actual object this relationship is applied to
+
+    def __str__(self):
+        return self.tag.label
 
 
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 
@@ -7,9 +8,19 @@ class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
 
+    def __str__(self):
+        shortened = self.description[:60] + "..."
+        return shortened
+
 class Collection(models.Model):
     title = models.CharField(max_length=255)
     featured_product = models.ForeignKey("Product", on_delete=models.SET_NULL, null=True, related_name="+")
+
+    def __str__(self):
+        return self.title
+
+    # class Meta:
+    #     ordering = ["title"]
 
 class Product(models.Model):
     BRONZE = "B"
@@ -26,13 +37,16 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField()
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators= [MinValueValidator(1)])
     inventory = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=BRONZE)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT) # With PROTECT, deleting a collection doesn't delete all the products in it
-    promotions = models.ManyToManyField(Promotion, related_name="products") # So one product can have multiple promotions vice versa; the related name overrides the default text Django will use to store products (product_set) in the Promotion Table. 
+    promotions = models.ManyToManyField(Promotion, related_name="products", blank=True) # So one product can have multiple promotions vice versa; the related name overrides the default text Django will use to store products (product_set) in the Promotion Table. 
+
+    def __str__(self):
+        return f"{self.title} - Amount #{self.amount}"
 
 
 
@@ -42,6 +56,9 @@ class Customer(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     birth_date = models.DateField(null=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
     class Meta:
         indexes = [
             models.Index(fields=["last_name", "first_name"])
@@ -64,6 +81,9 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS, default=PENDING)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"Order Placed At - {self.placed_at}"
+
 
 
 
@@ -72,6 +92,9 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.product.title} | Quantity: {self.quantity}"
 
 class Address(models.Model):
     street = models.CharField(max_length=255)
@@ -82,16 +105,25 @@ class Address(models.Model):
     # Case where a customer can have many/multiple addresses. NB -  the pk field is removed to allow many-to-one relationship
     # customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.customer.first_name} - {self.city},{self.state}"
+
 
 
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.created_at
 
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return f"{self.product.title} | In Cart: {self.quantity}"    
 
 
 
