@@ -3,8 +3,59 @@ from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView # for class based views
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from .models import Product, Collection
 from .serializers import ProductSerializer, CollectionSerializer
+
+
+
+class ProductListCreate(ListCreateAPIView):
+    # For Search Filtering & For Sorting (orderingFilter)
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ["title", "description"]
+    ordering_fields = ["amount", "last_updated"]
+
+    # For Pagination - to this list only
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        return Product.objects.all()
+
+    def get_serializer_class(self):
+        return ProductSerializer
+
+    def get_serializer_context(self):
+        return {"request": self.request}
+    
+   
+
+
+class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+
+    def get_queryset(self):
+            return Product.objects.all()
+    
+    def get_serializer_class(self):
+        return ProductSerializer
+
+    # Overriding the main delete method gives you full control over the response
+    def delete(self, request, *args, **kwargs):
+        product = self.get_object()
+        
+        if product.orderitems.count() > 0:
+            # Returns standard JSON with a 400 Status code instantly
+            return Response(
+                {"error": f"{product.title} cannot be deleted because it has been ordered"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
 
 @api_view(["GET", "POST"])
 def product_list(request):
@@ -34,7 +85,7 @@ def product_detail(request, pk):
         serializer.save()
         return Response(serializer.data)
     elif request.method == "DELETE":
-        if product.orderitem_set.count() > 0:
+        if product.orderitems.count() > 0:
             return Response({"error": f"{product.title} cannot be deleted because it has been ordered"})
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
