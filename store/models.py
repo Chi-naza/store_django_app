@@ -90,6 +90,11 @@ class Order(models.Model):
     def __str__(self):
         return f"Order Placed At - {self.placed_at}"
 
+    class Meta:
+        permissions = [
+            ("cancel_order", "Can cancel an order")
+        ]
+
 
 
 
