@@ -21,9 +21,14 @@ class ProductAdminn(admin.ModelAdmin):
 class CollectionAdminn(admin.ModelAdmin):
     search_fields = ["title"]   
 
+@admin.register(models.Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ["first_name", "last_name", "phone"]   
+    list_select_related = ["user"]
+    ordering = ["user__first_name", "user__last_name"]
+
 
 admin.site.register(models.Promotion)
-admin.site.register(models.Customer)
 admin.site.register(models.Address)
 admin.site.register(models.Order)
 admin.site.register(models.OrderItem)

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.conf import settings
 from uuid import uuid4
 
 # Create your models here.
@@ -52,17 +53,21 @@ class Product(models.Model):
 
 
 class Customer(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     birth_date = models.DateField(null=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    def first_name(self):
+        return self.user.first_name
+    
+    def last_name(self):
+        return self.user.last_name
     class Meta:
         indexes = [
-            models.Index(fields=["last_name", "first_name"])
+            models.Index(fields=["phone"])
         ]
 
 
