@@ -137,3 +137,7 @@ REST_FRAMEWORK = {
     # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination", #To set pagination globally
     "PAGE_SIZE": 2,
 }
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

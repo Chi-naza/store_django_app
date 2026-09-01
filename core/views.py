@@ -4,9 +4,13 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.db.models.aggregates import Count, Max, Min, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth import get_user_model
+
+from rest_framework import generics
 
 from store.models import Product, Order, Promotion, Collection, Customer
 from tags.models import TagItem
+from .serializers import UserSerializer
 
 
 # Create your views here.
@@ -89,3 +93,10 @@ def say_hello(request):
     # raw_query2 = Product.objects.raw("SELECT * FROM store_product")
 
     return render(request, "hello.html", {"name": "Chinaza Ugwuoke", "products": list(query_set), "created": new_obj})
+
+
+
+class UsersListView(generics.ListAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = UserSerializer
+

@@ -6,3 +6,7 @@ from django.conf import settings # import this to access the new user model we h
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=15,  null=True, blank=True)
+    bio = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+
