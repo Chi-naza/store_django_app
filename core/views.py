@@ -7,10 +7,19 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 
 from rest_framework import generics
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+# from rest_framework_simplejwt.views import TokenObtainPairView
+# from rest_framework_simplejwt.tokens import RefreshToken
+
+
 
 from store.models import Product, Order, Promotion, Collection, Customer
 from tags.models import TagItem
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
+
 
 
 # Create your views here.
@@ -99,4 +108,41 @@ def say_hello(request):
 class UsersListView(generics.ListAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
+
+
+
+# class CustomTokenObtainPairView(TokenObtainPairView):
+#     serializer_class = CustomTokenObtainPairSerializer
+
+
+# class RegisterView(APIView):
+#     # Allow anyone to access this endpoint (even unauthenticated users)
+#     permission_classes = [AllowAny]
+#     serializer_class = RegisterSerializer
+
+#     def post(self, request):
+#         serializer = RegisterSerializer(data=request.data)
+        
+#         if serializer.is_valid():
+#             # Create the user database record
+#             user = serializer.save()
+            
+#             # Instantly generate JWT tokens for the newly registered user
+#             refresh = RefreshToken.for_user(user)
+            
+#             # Return user info alongside tokens
+#             return Response({
+#                 "message": "User registered successfully!",
+#                 "user": {
+#                     "first_name": user.first_name,
+#                     "last_name": user.last_name,
+#                     "email": user.email
+#                 },
+#                 "tokens": {
+#                     "refresh": str(refresh),
+#                     "access": str(refresh.access_token),
+#                 }
+#             }, status=status.HTTP_201_CREATED)
+            
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

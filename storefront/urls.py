@@ -32,6 +32,9 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # auth
+    path("accounts/", include("allauth.urls")),
+    path("_allauth/", include("allauth.headless.urls")),
 ]
 
 if settings.DEBUG:

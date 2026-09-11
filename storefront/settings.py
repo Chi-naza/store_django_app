@@ -44,8 +44,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',
     'drf_spectacular',
+    # Allauth for authentication
+    'allauth',
+    'allauth.account',
+    'allauth.headless',
+    'allauth.socialaccount',
+    # Social providers
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.apple',
+    # Custom apps
     'core',
     'store',
     'tags'
@@ -59,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'storefront.urls'
@@ -158,10 +167,10 @@ REST_FRAMEWORK = {
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
-}
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
+# }
 
 
 SPECTACULAR_SETTINGS = {
@@ -170,3 +179,35 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
+
+# ALLAUTH SETTINGS
+
+ACCOUNT_LOGIN_METHODS = {"email"}
+
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",
+    "password1*",
+    "password2*",
+]
+
+# HEADLESS_ONLY = True
+
+
+HEADLESS_TOKEN_STRATEGY = (
+    "allauth.headless.tokens.strategies.jwt.JWTTokenStrategy"
+)
+
+HEADLESS_JWT_ACCESS_TOKEN_EXPIRES_IN = 300 # 5 mins
+HEADLESS_JWT_REFRESH_TOKEN_EXPIRES_IN = 86400 # 24 hours
+HEADLESS_JWT_ROTATE_REFRESH_TOKEN = True
+
+
+ACCOUNT_EMAIL_VERIFICATION = "mandatory" # mandatory, optional, and none
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+
+# logout invalidates token
+HEADLESS_JWT_STATEFUL_VALIDATION_ENABLED = True
+
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
