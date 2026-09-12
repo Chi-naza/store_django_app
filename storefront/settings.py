@@ -43,21 +43,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'drf_spectacular',
-    # Allauth for authentication
-    'allauth',
-    'allauth.account',
-    'allauth.headless',
-    'allauth.socialaccount',
-    # Social providers
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.apple',
-    # Custom apps
+    # Custom Apps
     'core',
     'store',
-    'tags'
+    'tags',
+    # API Frameworks
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
+    # Authentication Ecosystem
+    'dj_rest_auth',
+    'dj_rest_auth.registration', # <-- Handles Registration & Email Verification APIs
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
+
+
+SITE_ID = 1
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,7 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'storefront.urls'
@@ -151,26 +157,30 @@ AUTH_USER_MODEL = "core.User"
 
 REST_FRAMEWORK = {
     "COERCE_DECIMAL_TO_STRING": False,
-    # "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination", #To set pagination globally
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination", #To set pagination globally
     "PAGE_SIZE": 2,
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # Custom Exception Handler and Renderer
+    'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler',
+    'DEFAULT_RENDERER_CLASSES': [
+        'core.renderers.CustomJSONRenderer',
+    ],
 }
 
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# SIMPLE_JWT = {
-#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
-# }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1)
+}
 
 
 SPECTACULAR_SETTINGS = {
@@ -181,33 +191,31 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-# ALLAUTH SETTINGS
+# Tell dj-rest-auth to drop default tokens and adopt SimpleJWT 
+REST_AUTH = {
+    'USE_JWT': True,
+    'TOKEN_MODEL': None,
+    'JWT_AUTH_HTTPONLY': False,  # Keeps dj-rest-auth from trying to set secure cookies
 
-ACCOUNT_LOGIN_METHODS = {"email"}
-
-ACCOUNT_SIGNUP_FIELDS = [
-    "email*",
-    "password1*",
-    "password2*",
-]
-
-# HEADLESS_ONLY = True
-
-
-HEADLESS_TOKEN_STRATEGY = (
-    "allauth.headless.tokens.strategies.jwt.JWTTokenStrategy"
-)
-
-HEADLESS_JWT_ACCESS_TOKEN_EXPIRES_IN = 300 # 5 mins
-HEADLESS_JWT_REFRESH_TOKEN_EXPIRES_IN = 86400 # 24 hours
-HEADLESS_JWT_ROTATE_REFRESH_TOKEN = True
+    # Override default serializers with your custom ones
+    'LOGIN_SERIALIZER': 'core.serializers.CustomLoginSerializer',
+    'REGISTER_SERIALIZER': 'core.serializers.CustomRegisterSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'core.serializers.CustomPasswordResetSerializer',
+    'PASSWORD_RESET_CONFIRM_SERIALIZER': 'core.serializers.CustomPasswordResetConfirmSerializer',
+    # VERIFY_EMAIL_SERIALIZER removed — VerifyEmailView doesn't read this key;
+    # the override is handled via CustomVerifyEmailView + urls.py instead.
+}
 
 
-ACCOUNT_EMAIL_VERIFICATION = "mandatory" # mandatory, optional, and none
-ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 
-# logout invalidates token
-HEADLESS_JWT_STATEFUL_VALIDATION_ENABLED = True
+# Configure Email Verification rules via django-allauth
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'first_name*', 'last_name*', 'phone_number*']
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory' # Options: 'mandatory', 'optional', 'none'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False 
+
+# CRUCIAL FOR OTP: Forces allauth to use basic string/integer tokens instead of complex HMAC encrypted URL parameters.
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
 
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_ADAPTER = 'core.adapters.OTPAccountAdapter'
