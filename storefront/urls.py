@@ -32,12 +32,6 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-
-  
-    # 🔑 AUTHENTICATION ENDPOINTS (Login, Logout, Password Reset, Password Change)
-    path('api/auth/', include('dj_rest_auth.urls')),
-    # 📝 REGISTRATION ENDPOINTS (Signup, Email Verification trigger)
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 ]
 
 if settings.DEBUG:

@@ -52,12 +52,15 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
-    # Authentication Ecosystem
+    # Authentication
     'dj_rest_auth',
     'dj_rest_auth.registration', # <-- Handles Registration & Email Verification APIs
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    # Social Providers from AllAuth (Google, Facebook, Twitter, etc.)
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.apple',
 ]
 
 

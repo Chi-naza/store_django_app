@@ -12,10 +12,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
+from dj_rest_auth.registration.views import SocialLoginView
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.apple.views import AppleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+
 from core.serializers import CustomVerifyEmailSerializer
-from dj_rest_auth.registration.views import VerifyEmailView
-
-
 from store.models import Product, Order, Promotion, Collection, Customer
 from tags.models import TagItem
 
@@ -115,3 +118,20 @@ class CustomVerifyEmailView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(request)
         return Response({"detail": "Email successfully verified."}, status=status.HTTP_200_OK)
+
+
+
+
+
+# Apple Login View
+class AppleLoginView(SocialLoginView):
+    adapter_class = AppleOAuth2Adapter
+    # Replace with your actual frontend redirect URI callback if utilizing web flows
+    callback_url = 'https://google.com'
+    client_class = OAuth2Client
+
+# Google Login View
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = 'https://google.com'
+    client_class = OAuth2Client
